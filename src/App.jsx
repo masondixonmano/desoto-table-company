@@ -6,28 +6,6 @@ const BRAND = {
   sub: "Mason Dixon Manor LLC",
 };
 
-const PRICING = {
-  rules: [
-    {
-      match: ["dining table", "dining", "table", "red oak", "oak"],
-      seats: [6],
-      with: ["bench", "chair"],
-      base: 3500,
-      label: "Dining Table (Red Oak, seats 6, with benches & chairs)",
-      timeline: "4–6 weeks",
-    },
-    {
-      match: ["farmhouse", "farm house", "farm"],
-      seats: [8],
-      base: 3800,
-      label: "Farmhouse Table & Chairs/Bench (seats 8, painted base, solid oak top)",
-      timeline: "4–6 weeks",
-    },
-  ],
-  rushSurcharge: 0.25,
-  minBudget: 2000,
-};
-
 const SYSTEM_PROMPT = `You are a refined, warm sales assistant for DeSoto Table Company — a premium custom furniture maker specializing in heirloom-quality hardwood pieces. Your tone is like a trusted master craftsman: knowledgeable, unhurried, never pushy. Think of the brand as Rolex meets a Tennessee woodshop.
 
 Your job is to gently qualify leads by gathering these 5 pieces of information in a natural conversation:
@@ -57,7 +35,6 @@ const OPENING = `Welcome to DeSoto Table Company. I'm here to help you start you
 What brings you here today? Are you looking for a specific piece, or just exploring what's possible?`;
 
 function estimateFromConversation(messages) {
-  // Simple heuristic to show a quote card when LEAD_DATA is found
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i];
     if (m.role === "assistant" && m.content.includes("LEAD_DATA:")) {
@@ -81,7 +58,7 @@ export default function DeSotoChat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [leadData, setLeadData] = useState(null);
-  const [phase, setPhase] = useState("chat"); // chat | captured
+  const [phase, setPhase] = useState("chat");
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -100,7 +77,7 @@ export default function DeSotoChat() {
     const apiMessages = newMessages.map(m => ({ role: m.role, content: m.content }));
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -137,10 +114,7 @@ export default function DeSotoChat() {
 
   return (
     <div style={styles.root}>
-      {/* Grain overlay */}
       <div style={styles.grain} />
-
-      {/* Header */}
       <header style={styles.header}>
         <div style={styles.logoMark}>✦</div>
         <div style={styles.brandBlock}>
@@ -152,7 +126,6 @@ export default function DeSotoChat() {
 
       <div style={styles.dividerLine} />
 
-      {/* Chat area */}
       <div style={styles.chatOuter}>
         <div style={styles.chatInner}>
           {messages.map((m, i) => (
@@ -164,7 +137,6 @@ export default function DeSotoChat() {
         </div>
       </div>
 
-      {/* Input */}
       <div style={styles.inputBar}>
         <div style={styles.inputWrapper}>
           <textarea
@@ -184,13 +156,12 @@ export default function DeSotoChat() {
         <div style={styles.inputHint}>Press Enter to send · Shift+Enter for new line</div>
       </div>
 
-      {/* Footer */}
       <div style={styles.footer}>{BRAND.sub} · All pieces handcrafted to order</div>
     </div>
   );
 }
 
-function MessageBubble({ msg, isFirst }) {
+function MessageBubble({ msg }) {
   const isAssistant = msg.role === "assistant";
   const text = cleanMessage(msg.content);
   return (
@@ -261,9 +232,7 @@ function SendIcon() {
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
 const BRASS = "#C9A84C";
-const BRASS_LIGHT = "#E8C97A";
 const DARK = "#0F0D0B";
 const SURFACE = "#1A1713";
 const SURFACE2 = "#221F1A";
@@ -300,14 +269,8 @@ const styles = {
     position: "relative",
     zIndex: 1,
   },
-  logoMark: {
-    color: BRASS,
-    fontSize: "18px",
-    opacity: 0.7,
-  },
-  brandBlock: {
-    textAlign: "center",
-  },
+  logoMark: { color: BRASS, fontSize: "18px", opacity: 0.7 },
+  brandBlock: { textAlign: "center" },
   brandName: {
     fontSize: "22px",
     fontWeight: "normal",
@@ -345,11 +308,7 @@ const styles = {
     flexDirection: "column",
     gap: "16px",
   },
-  bubbleRow: {
-    display: "flex",
-    alignItems: "flex-end",
-    gap: "10px",
-  },
+  bubbleRow: { display: "flex", alignItems: "flex-end", gap: "10px" },
   avatarDot: {
     width: "30px",
     height: "30px",
@@ -383,10 +342,7 @@ const styles = {
     color: TEXT,
     borderRadius: "2px",
   },
-  bubbleLine: {
-    margin: "0 0 6px 0",
-    "&:last-child": { marginBottom: 0 },
-  },
+  bubbleLine: { margin: "0 0 6px 0" },
   typingBubble: {
     display: "flex",
     alignItems: "center",
@@ -394,21 +350,9 @@ const styles = {
     padding: "16px 18px",
     minWidth: "60px",
   },
-  dot1: {
-    width: "6px", height: "6px", borderRadius: "50%",
-    background: BRASS, opacity: 0.4,
-    animation: "pulse 1.2s ease-in-out infinite",
-  },
-  dot2: {
-    width: "6px", height: "6px", borderRadius: "50%",
-    background: BRASS, opacity: 0.4,
-    animation: "pulse 1.2s ease-in-out 0.2s infinite",
-  },
-  dot3: {
-    width: "6px", height: "6px", borderRadius: "50%",
-    background: BRASS, opacity: 0.4,
-    animation: "pulse 1.2s ease-in-out 0.4s infinite",
-  },
+  dot1: { width: "6px", height: "6px", borderRadius: "50%", background: BRASS, opacity: 0.4 },
+  dot2: { width: "6px", height: "6px", borderRadius: "50%", background: BRASS, opacity: 0.4 },
+  dot3: { width: "6px", height: "6px", borderRadius: "50%", background: BRASS, opacity: 0.4 },
   inputBar: {
     padding: "16px 16px 8px",
     background: SURFACE,
@@ -426,7 +370,6 @@ const styles = {
     border: `1px solid ${SURFACE3}`,
     borderRadius: "2px",
     padding: "10px 12px",
-    transition: "border-color 0.2s",
   },
   textarea: {
     flex: 1,
@@ -440,7 +383,6 @@ const styles = {
     lineHeight: 1.6,
     minHeight: "24px",
     maxHeight: "120px",
-    "::placeholder": { color: TEXT_MUTED },
   },
   sendBtn: {
     background: "transparent",
@@ -452,7 +394,6 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     opacity: 0.8,
-    transition: "opacity 0.2s",
     flexShrink: 0,
   },
   inputHint: {
@@ -479,7 +420,6 @@ const styles = {
     borderTop: `2px solid ${BRASS}`,
     padding: "24px 28px",
     marginTop: "8px",
-    position: "relative",
   },
   quoteHeader: {
     display: "flex",
@@ -493,37 +433,17 @@ const styles = {
     textTransform: "uppercase",
     color: BRASS,
   },
-  quoteEstimate: {
-    fontSize: "22px",
-    color: TEXT,
-    letterSpacing: "0.05em",
-  },
-  quoteDivider: {
-    height: "1px",
-    background: `${BRASS}33`,
-    margin: "16px 0",
-  },
-  quoteGrid: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-  },
-  quoteRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "13px",
-  },
+  quoteEstimate: { fontSize: "22px", color: TEXT, letterSpacing: "0.05em" },
+  quoteDivider: { height: "1px", background: `${BRASS}33`, margin: "16px 0" },
+  quoteGrid: { display: "flex", flexDirection: "column", gap: "10px" },
+  quoteRow: { display: "flex", justifyContent: "space-between", fontSize: "13px" },
   quoteRowLabel: {
     color: TEXT_DIM,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
     fontSize: "11px",
   },
-  quoteRowValue: {
-    color: TEXT,
-    textAlign: "right",
-    maxWidth: "60%",
-  },
+  quoteRowValue: { color: TEXT, textAlign: "right", maxWidth: "60%" },
   quoteFooter: {
     fontSize: "12px",
     color: BRASS,
@@ -533,7 +453,6 @@ const styles = {
   },
 };
 
-// Inject keyframes
 if (typeof document !== "undefined") {
   const style = document.createElement("style");
   style.textContent = `
